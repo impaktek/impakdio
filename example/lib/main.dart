@@ -37,8 +37,8 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiaWF0IjoxNzE4ODgxMjQ5fQ.snHREqmEpOWWaYbv98mNt6-xgwFztdbB9mGTlGME8WE";
-String baseUrl = "https://mycr-auth.nugitech.com";
+String token = "";
+String baseUrl = "";
 class _MyHomePageState extends State<MyHomePage> {
   String? error;
   List<Post> _response = [];
