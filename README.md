@@ -125,6 +125,110 @@ The `typeSafeCall` method accepts several parameters to customize the request:
 - **`method`**: The HTTP method to use (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`).
 - **`body`**: The request body for `POST`, `PUT`, or `PATCH` methods.
 
+## `call` Method
+
+The `call` method is the core method in `Impakdio` for making HTTP requests to a remote API. It supports different HTTP request methods such as `GET`, `POST`, `PUT`, `PATCH`, and `DELETE`. This method provides a flexible way to manage request parameters, headers, timeouts, and more. It returns a dynamic response, allowing you to handle different types of API responses in a flexible manner.
+
+### Method Signature
+```dart
+Future<ImpakResponse> call({
+  required String path,
+  Map<String, dynamic> headers = const {},
+  Map<String, dynamic> queryParams = const {},
+  String? baseUrl,
+  bool withCancelToken = false,
+  bool useAuthorization = false,
+  String? authorizationToken,
+  bool useLogger = true,
+  int timeout = 60,
+  TimeUnit timeUnit = TimeUnit.SECONDS,
+  FormData? formData,
+  required RequestMethod method,
+  Map<String, dynamic>? body,
+});
+```
+
+### Parameters
+
+- **`path`** (`String`): The endpoint path for the request. This is a required parameter.
+- **`headers`** (`Map<String, dynamic>`): The HTTP headers to be sent with the request. Default is an empty map (`{}`).
+- **`queryParams`** (`Map<String, dynamic>`): The query parameters to be appended to the URL. Default is an empty map (`{}`).
+- **`baseUrl`** (`String?`): The base URL for the API. If not provided, it uses the base URL initialized using `initBaseUrl()`.
+- **`withCancelToken`** (`bool`): If `true`, a cancel token will be created to allow canceling the request. Default is `false`.
+- **`useAuthorization`** (`bool`): If `true`, the request will include an authorization token, either from the provided `authorizationToken` or the static `_authenticationToken`. Default is `false`.
+- **`authorizationToken`** (`String?`): The authorization token to be included in the request headers. If not provided, it will fallback to `_authenticationToken` when `useAuthorization` is `true`.
+- **`useLogger`** (`bool`): If `true`, the request and response will be logged for debugging purposes. Default is `true`.
+- **`timeout`** (`int`): The timeout for the request in seconds. Default is `60`.
+- **`timeUnit`** (`TimeUnit`): The unit of time used for the timeout. Default is `TimeUnit.SECONDS`.
+- **`formData`** (`FormData?`): Form data for requests like `POST`, `PUT`, etc. Default is `null`.
+- **`method`** (`RequestMethod`): The HTTP request method to use, such as `GET`, `POST`, `PUT`, `PATCH`, or `DELETE`.
+- **`body`** (`Map<String, dynamic>?`): The body content for `POST`, `PUT`, `PATCH`, and similar methods. Default is `null`.
+
+### Returns
+
+Returns an instance of `ImpakResponse`. This class contains the following properties:
+- **`statusCode`** (`int?`): The HTTP status code from the response.
+- **`data`** (`dynamic`): The response data from the API. This is dynamic, meaning it can be any type, depending on the API response. You can safely cast or map this data into your desired format.
+- **`error`** (`dynamic`): In case of an error, the error details are returned here.
+
+### Example Usage
+
+#### Making a `GET` request:
+```dart
+Impakdio().call(
+  path: 'users/1',
+  method: RequestMethod.GET,
+  headers: {'Authorization': 'Bearer token'},
+  useAuthorization: true,
+  timeout: 30,
+).then((response) {
+  if (response.statusCode == 200) {
+    // Handle success
+    print('Response Data: ${response.data}');
+  } else {
+    // Handle error
+    print('Error: ${response.error}');
+  }
+});
+```
+
+#### Making a `POST` request with body data:
+```dart
+Impakdio().call(
+  path: 'users',
+  method: RequestMethod.POST,
+  body: {'name': 'John Doe', 'email': 'john@example.com'},
+  headers: {'Authorization': 'Bearer token'},
+  timeout: 30,
+).then((response) {
+  if (response.statusCode == 201) {
+    // Handle success
+    print('Created User: ${response.data}');
+  } else {
+    // Handle error
+    print('Error: ${response.error}');
+  }
+});
+```
+
+### Error Handling
+
+The `call` method handles various error types and throws specific `ImpakdioException` errors, which can include:
+- **`TIMEOUT_ERROR`**: The request timed out.
+- **`CANCELLED_ERROR`**: The request was cancelled by the user.
+- **`AUTHORIZATION_ERROR`**: Unauthorized request (e.g., invalid or missing authorization token).
+- **`BAD_REQUEST`**: The request was not valid (e.g., incorrect input or parameters).
+- **`CONNECTION_ERROR`**: Failed to establish a connection to the server.
+- **`UNKNOWN_ERROR`**: An unknown error occurred.
+- **`SERVER_ERROR`**: The server returned a general error.
+
+Each of these exceptions includes a `statusCode` (if available) and a message describing the error.
+
+### Notes
+
+- The `data` returned by the API is dynamic, which means it can be a simple value (e.g., a number or string), a JSON object, or even an array, depending on the API response.
+- It is important to check the `statusCode` and the `data` properly to handle success and failure conditions in a type-safe manner.
+
 ### Error Handling
 
 `Impakdio` has built-in error handling for various HTTP exceptions:
@@ -142,18 +246,6 @@ When making a request, the response is wrapped in an `ImpakdioResponse` object, 
 - **`ImpakdioFailure`**: Contains an error message if the request fails but doesn’t throw an exception.
 - **`ImpakdioError`**: Contains error details when an exception is caught during the request.
 
-### Cancel a Request
-
-You can cancel an ongoing request by passing `withCancelToken: true` in the request options. This will allow you to cancel the request before it completes.
-
-```dart
-import 'package:impakdio/impakdio.dart';
-
-CancelToken cancelToken = CancelToken();
-
-// Cancel a request at any time
-cancelToken.cancel();
-```
 
 ### Timeout Handling
 
