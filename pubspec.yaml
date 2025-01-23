@@ -1,6 +1,6 @@
 name: impakdio
 description: "An Api Package base on dio"
-version: 0.0.1
+version: 0.0.1+0
 homepage: https://github.com/impaktek/impakdio
 
 environment:

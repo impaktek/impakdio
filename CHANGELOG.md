@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.0.1] - 2025-01-23
+## [0.0.1+0] - 2025-01-23
 ### Initial release
 - **Impakdio** class added with core functionality for HTTP requests.
     - Allows making API calls with GET, POST, PUT, PATCH, and DELETE methods.
